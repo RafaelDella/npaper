@@ -2,7 +2,6 @@
 require_once 'auth.php';
 include_once 'header.php';
 
-// Pegamos os favoritos do banco para marcar as estrelas
 $pdo = new PDO("mysql:host=db;dbname=npaper_db;charset=utf8mb4", "root", "root_password");
 $stmt = $pdo->prepare("SELECT livro_id FROM favoritos WHERE usuario_id = ?");
 $stmt->execute([$_SESSION['usuario_id']]);
@@ -10,24 +9,16 @@ $meus_favoritos = $stmt->fetchAll(PDO::FETCH_COLUMN);
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <title>NPaper | Acervo Digital</title>
-    <style>
-        [x-cloak] {
-            display: none !important;
-        }
-    </style>
+    <style>[x-cloak] { display: none !important; }</style>
 </head>
 
-<body class="bg-zinc-950 text-zinc-200 font-sans min-h-screen"
-    x-cloak
-    x-data="appData()"
-    x-init="buscar()">
+<body class="bg-zinc-950 text-zinc-200 font-sans min-h-screen" x-cloak x-data="appData()" x-init="buscar()">
 
     <main class="max-w-6xl mx-auto pt-10 px-6 pb-20">
 
@@ -36,11 +27,11 @@ $meus_favoritos = $stmt->fetchAll(PDO::FETCH_COLUMN);
                 <svg class="absolute left-4 top-3.5 h-5 w-5 text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
-                <input x-model="query" @keyup.enter="buscar()" type="text" placeholder="Pesquisar por título ou categoria..."
-                    class="w-full bg-zinc-900/50 border border-zinc-800 rounded-2xl pl-12 pr-4 py-3 text-sm focus:border-orange-500 focus:bg-zinc-900 outline-none transition-all">
+                <input x-model="query" @keyup.enter="buscar()" type="text" placeholder="Pesquisar..."
+                    class="w-full bg-zinc-900/50 border border-zinc-800 rounded-2xl pl-12 pr-4 py-3 text-sm focus:border-orange-500 outline-none transition-all">
             </div>
 
-            <select x-model="cat" @change="buscar()" class="w-full md:w-48 bg-zinc-900/50 border border-zinc-800 rounded-2xl px-4 py-3 text-sm outline-none text-zinc-400 cursor-pointer focus:border-orange-500">
+            <select x-model="cat" @change="buscar()" class="w-full md:w-48 bg-zinc-900/50 border border-zinc-800 rounded-2xl px-4 py-3 text-sm text-zinc-400 outline-none cursor-pointer focus:border-orange-500">
                 <option value="">Todas Categorias</option>
                 <template x-for="c in res.categorias">
                     <option :value="c" x-text="c"></option>
@@ -57,16 +48,10 @@ $meus_favoritos = $stmt->fetchAll(PDO::FETCH_COLUMN);
                 <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
                     <template x-for="item in recentes" :key="item.id">
                         <div class="relative group">
-                            <button @click="removerRecente(item.id)"
-                                class="absolute -top-2 -right-2 z-20 bg-zinc-800 text-zinc-400 hover:text-white border border-zinc-700 rounded-full p-1 shadow-xl opacity-0 group-hover:opacity-100 transition-opacity">
-                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                </svg>
+                            <button @click="removerRecente(item.id)" class="absolute -top-2 -right-2 z-20 bg-zinc-800 text-zinc-400 hover:text-white border border-zinc-700 rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
                             </button>
-
-                            <a :href="'/acervo/' + item.nome_arquivo" target="_blank"
-                                @click="registrarLeitura(item)"
-                                class="bg-zinc-900/40 border border-zinc-800 p-3 rounded-2xl flex items-center gap-3 hover:border-orange-500/30 transition-all">
+                            <a :href="'/acervo/' + item.nome_arquivo" target="_blank" @click="registrarLeitura(item)" class="bg-zinc-900/40 border border-zinc-800 p-3 rounded-2xl flex items-center gap-3 hover:border-orange-500/30 transition-all">
                                 <img :src="item.capa" class="w-10 h-14 object-cover rounded-lg shadow-md">
                                 <div class="truncate">
                                     <p class="text-xs font-bold text-zinc-200 truncate" x-text="item.titulo"></p>
@@ -82,12 +67,18 @@ $meus_favoritos = $stmt->fetchAll(PDO::FETCH_COLUMN);
         <section class="mb-16">
             <div class="flex items-center gap-3 mb-8">
                 <div class="h-6 w-1 bg-orange-500 rounded-full"></div>
-                <h2 class="text-xl font-bold tracking-tight uppercase" x-text="query || cat ? 'Resultados da Busca' : 'Recém Adicionados'"></h2>
+                <h2 class="text-xl font-bold tracking-tight uppercase" x-text="query || cat ? 'Resultados' : 'Recém Adicionados'"></h2>
             </div>
 
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
                 <template x-for="livro in res.recentes" :key="livro.id">
                     <div class="group relative bg-zinc-900/20 border border-zinc-800/50 rounded-[2rem] p-4 hover:bg-zinc-900/40 transition-all shadow-xl">
+                        
+                        <div class="absolute top-6 left-6 z-10 flex gap-2">
+                            <button @click="abrirNotas(livro)" class="p-2 rounded-full bg-black/50 backdrop-blur-md border border-zinc-700 text-orange-500 hover:bg-orange-600 hover:text-white transition-all shadow-lg">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                            </button>
+                        </div>
 
                         <a :href="'favoritar.php?id=' + livro.id" class="absolute top-6 right-6 z-10 p-2 rounded-full bg-black/50 backdrop-blur-md border border-zinc-700 text-zinc-500 hover:text-orange-500 transition-colors">
                             <svg class="w-4 h-4" :class="meusFavoritos.includes(parseInt(livro.id)) ? 'fill-orange-500 text-orange-500' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -116,7 +107,7 @@ $meus_favoritos = $stmt->fetchAll(PDO::FETCH_COLUMN);
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     <template x-for="livro in res.trending" :key="livro.id">
-                        <div class="bg-zinc-900/40 border border-zinc-900 rounded-2xl overflow-hidden hover:border-red-900/30 transition-all group p-4" @click="registrarLeitura(livro); window.location.href='download.php?id=' + livro.id">
+                        <div class="bg-zinc-900/40 border border-zinc-900 rounded-2xl overflow-hidden group p-4 cursor-pointer" @click="registrarLeitura(livro); window.location.href='download.php?id=' + livro.id">
                             <div class="aspect-[3/4] bg-zinc-800 relative overflow-hidden rounded-xl">
                                 <img :src="livro.capa" class="w-full h-full object-cover grayscale-[40%] group-hover:grayscale-0 transition-all duration-500">
                                 <div class="absolute top-3 right-3 bg-red-600 text-[10px] font-black px-2 py-1 rounded-md shadow-lg" x-text="livro.downloads + ' DOWNLOADS'"></div>
@@ -132,50 +123,49 @@ $meus_favoritos = $stmt->fetchAll(PDO::FETCH_COLUMN);
 
     </main>
 
+    <?php include_once 'modal_notas.php'; ?>
+
     <script>
         function appData() {
             return {
-                query: "",
-                cat: "",
-                res: {
-                    recentes: [],
-                    trending: [],
-                    categorias: []
-                },
+                query: "", cat: "",
+                res: { recentes: [], trending: [], categorias: [] },
                 recentes: JSON.parse(localStorage.getItem('npaper_recentes') || '[]'),
                 meusFavoritos: <?php echo json_encode($meus_favoritos); ?>,
+                notaModal: false, livroSelecionado: null, minhaNota: '', isPublica: false, carregandoNota: false,
 
                 buscar() {
                     fetch(`api.php?q=${this.query}&cat=${this.cat}`)
                         .then(r => r.json())
                         .then(d => this.res = d);
                 },
-
                 registrarLeitura(livro) {
-                    // Filtra para não repetir o mesmo livro na lista
                     let lista = this.recentes.filter(l => l.id !== livro.id);
-
-                    // Adiciona o novo (ou o atualizado) no topo da lista
-                    lista.unshift({
-                        id: livro.id,
-                        titulo: livro.titulo,
-                        capa: livro.capa,
-                        nome_arquivo: livro.nome_arquivo // Guardamos o nome para abrir direto
-                    });
-
-                    // Mantém apenas os 5 últimos e salva
+                    lista.unshift({ id: livro.id, titulo: livro.titulo, capa: livro.capa, nome_arquivo: livro.nome_arquivo });
                     this.recentes = lista.slice(0, 5);
                     localStorage.setItem('npaper_recentes', JSON.stringify(this.recentes));
                 },
-
                 removerRecente(id) {
-                    // Filtra a lista removendo o ID clicado
                     this.recentes = this.recentes.filter(l => l.id !== id);
                     localStorage.setItem('npaper_recentes', JSON.stringify(this.recentes));
+                },
+                abrirNotas(livro) {
+                    this.livroSelecionado = livro;
+                    this.notaModal = true;
+                    this.minhaNota = '';
+                    this.carregandoNota = true;
+                    fetch(`buscar_nota.php?livro_id=${livro.id}`)
+                        .then(r => r.json())
+                        .then(d => {
+                            if (d.sucesso) {
+                                this.minhaNota = d.conteudo;
+                                this.isPublica = d.publica == 1;
+                            }
+                            this.carregandoNota = false;
+                        });
                 }
             }
         }
     </script>
 </body>
-
 </html>
