@@ -1,5 +1,5 @@
 <?php
-require_once 'auth.php'; 
+require_once 'auth.php';
 include_once 'header.php';
 
 // Pegamos os favoritos do banco para marcar as estrelas
@@ -10,13 +10,18 @@ $meus_favoritos = $stmt->fetchAll(PDO::FETCH_COLUMN);
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <title>NPaper | Acervo Digital</title>
-    <style>[x-cloak] { display: none !important; }</style>
+    <style>
+        [x-cloak] {
+            display: none !important;
+        }
+    </style>
 </head>
 
 <body class="bg-zinc-950 text-zinc-200 font-sans min-h-screen"
@@ -51,13 +56,24 @@ $meus_favoritos = $stmt->fetchAll(PDO::FETCH_COLUMN);
                 </h2>
                 <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
                     <template x-for="item in recentes" :key="item.id">
-                        <a :href="'download.php?id=' + item.id" @click="registrarLeitura(item)" class="bg-zinc-900/40 border border-zinc-800 p-3 rounded-2xl flex items-center gap-3 hover:border-orange-500/30 transition-all group">
-                            <img :src="item.capa" class="w-10 h-14 object-cover rounded-lg shadow-md group-hover:scale-105 transition-transform">
-                            <div class="truncate">
-                                <p class="text-xs font-bold text-zinc-200 truncate" x-text="item.titulo"></p>
-                                <p class="text-[9px] text-zinc-500 uppercase tracking-tighter">Retomar leitura</p>
-                            </div>
-                        </a>
+                        <div class="relative group">
+                            <button @click="removerRecente(item.id)"
+                                class="absolute -top-2 -right-2 z-20 bg-zinc-800 text-zinc-400 hover:text-white border border-zinc-700 rounded-full p-1 shadow-xl opacity-0 group-hover:opacity-100 transition-opacity">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+
+                            <a :href="'/acervo/' + item.nome_arquivo" target="_blank"
+                                @click="registrarLeitura(item)"
+                                class="bg-zinc-900/40 border border-zinc-800 p-3 rounded-2xl flex items-center gap-3 hover:border-orange-500/30 transition-all">
+                                <img :src="item.capa" class="w-10 h-14 object-cover rounded-lg shadow-md">
+                                <div class="truncate">
+                                    <p class="text-xs font-bold text-zinc-200 truncate" x-text="item.titulo"></p>
+                                    <p class="text-[9px] text-zinc-500 uppercase tracking-tighter">Visualizar PDF</p>
+                                </div>
+                            </a>
+                        </div>
                     </template>
                 </div>
             </section>
@@ -72,7 +88,7 @@ $meus_favoritos = $stmt->fetchAll(PDO::FETCH_COLUMN);
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
                 <template x-for="livro in res.recentes" :key="livro.id">
                     <div class="group relative bg-zinc-900/20 border border-zinc-800/50 rounded-[2rem] p-4 hover:bg-zinc-900/40 transition-all shadow-xl">
-                        
+
                         <a :href="'favoritar.php?id=' + livro.id" class="absolute top-6 right-6 z-10 p-2 rounded-full bg-black/50 backdrop-blur-md border border-zinc-700 text-zinc-500 hover:text-orange-500 transition-colors">
                             <svg class="w-4 h-4" :class="meusFavoritos.includes(parseInt(livro.id)) ? 'fill-orange-500 text-orange-500' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.518 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.921-.755 1.688-1.54 1.118l-3.976-2.888a1 1 0 00-1.175 0l-3.976 2.888c-.784.57-1.838-.197-1.539-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
@@ -117,28 +133,49 @@ $meus_favoritos = $stmt->fetchAll(PDO::FETCH_COLUMN);
     </main>
 
     <script>
-    function appData() {
-        return {
-            query: "",
-            cat: "",
-            res: { recentes: [], trending: [], categorias: [] },
-            recentes: JSON.parse(localStorage.getItem('npaper_recentes') || '[]'),
-            meusFavoritos: <?php echo json_encode($meus_favoritos); ?>,
-            
-            buscar() {
-                fetch(`api.php?q=${this.query}&cat=${this.cat}`)
-                    .then(r => r.json())
-                    .then(d => this.res = d);
-            },
-            
-            registrarLeitura(livro) {
-                let lista = this.recentes.filter(l => l.id !== livro.id);
-                lista.unshift({id: livro.id, titulo: livro.titulo, capa: livro.capa});
-                this.recentes = lista.slice(0, 5);
-                localStorage.setItem('npaper_recentes', JSON.stringify(this.recentes));
+        function appData() {
+            return {
+                query: "",
+                cat: "",
+                res: {
+                    recentes: [],
+                    trending: [],
+                    categorias: []
+                },
+                recentes: JSON.parse(localStorage.getItem('npaper_recentes') || '[]'),
+                meusFavoritos: <?php echo json_encode($meus_favoritos); ?>,
+
+                buscar() {
+                    fetch(`api.php?q=${this.query}&cat=${this.cat}`)
+                        .then(r => r.json())
+                        .then(d => this.res = d);
+                },
+
+                registrarLeitura(livro) {
+                    // Filtra para não repetir o mesmo livro na lista
+                    let lista = this.recentes.filter(l => l.id !== livro.id);
+
+                    // Adiciona o novo (ou o atualizado) no topo da lista
+                    lista.unshift({
+                        id: livro.id,
+                        titulo: livro.titulo,
+                        capa: livro.capa,
+                        nome_arquivo: livro.nome_arquivo // Guardamos o nome para abrir direto
+                    });
+
+                    // Mantém apenas os 5 últimos e salva
+                    this.recentes = lista.slice(0, 5);
+                    localStorage.setItem('npaper_recentes', JSON.stringify(this.recentes));
+                },
+
+                removerRecente(id) {
+                    // Filtra a lista removendo o ID clicado
+                    this.recentes = this.recentes.filter(l => l.id !== id);
+                    localStorage.setItem('npaper_recentes', JSON.stringify(this.recentes));
+                }
             }
         }
-    }
     </script>
 </body>
+
 </html>
