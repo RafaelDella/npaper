@@ -26,6 +26,7 @@ services:
       MARIADB_DATABASE: npaper_db
     volumes:
       - db_data:/var/lib/mysql
+      - /srv/npaper/init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
       - "3306:3306" # <--- ADICIONE ESTA LINHA
     networks:
