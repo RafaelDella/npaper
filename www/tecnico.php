@@ -95,34 +95,7 @@ if ($logs) {
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            
-            <div class="bg-zinc-900/20 border border-zinc-800 rounded-3xl overflow-hidden shadow-2xl">
-                <div class="bg-zinc-900/60 px-6 py-4 flex items-center justify-between border-b border-zinc-800">
-                    <div class="flex items-center gap-2">
-                        <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse shadow-[0_0_8px_#3b82f6]"></div>
-                        <span class="text-[10px] font-bold tracking-widest uppercase">Docker Runtime</span>
-                    </div>
-                </div>
-                <div class="p-6">
-                    <pre class="text-[10px] font-mono text-blue-400 bg-black/40 p-5 rounded-2xl border border-blue-500/10 min-h-[150px] leading-relaxed"><?php echo $docker_ps; ?></pre>
-                </div>
-            </div>
-
-            <div class="bg-zinc-900/20 border border-zinc-800 rounded-3xl overflow-hidden shadow-2xl">
-                <div class="bg-zinc-900/60 px-6 py-4 flex items-center justify-between border-b border-zinc-800">
-                    <div class="flex items-center gap-2">
-                        <div class="w-2 h-2 bg-red-500 rounded-full"></div>
-                        <span class="text-[10px] font-bold tracking-widest uppercase text-zinc-400">Activity Logs (Events)</span>
-                    </div>
-                    <span class="text-[9px] font-mono text-zinc-600 uppercase"><?php echo $uptime; ?></span>
-                </div>
-                <div class="p-6">
-                    <pre class="text-[10px] font-mono text-red-400/70 bg-black/40 p-5 rounded-2xl border border-red-500/10 min-h-[150px] leading-relaxed"><?php echo htmlspecialchars($logs ?? 'nenhum log disponível'); ?></pre>
-                </div>
-            </div>
-
-        </div>
+        <iframe src="http://10.213.75.73:8080" width="100%" height="600" style="border:none; border-radius:12px;"></iframe>
 
         <footer class="mt-12 text-center">
              <p class="text-[9px] font-bold text-zinc-800 uppercase tracking-[0.3em]">NPaper Engineering Division • Secure Internal Access</p>
