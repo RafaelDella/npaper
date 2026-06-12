@@ -95,7 +95,7 @@ if ($logs) {
             </div>
         </div>
 
-        <iframe src="http://10.213.75.73:8080" width="100%" height="600" style="border:none; border-radius:12px;"></iframe>
+        <iframe src="http://10.213.75.73:5000" width="100%" height="600" style="border:none; border-radius:12px;"></iframe>
 
         <footer class="mt-12 text-center">
              <p class="text-[9px] font-bold text-zinc-800 uppercase tracking-[0.3em]">NPaper Engineering Division • Secure Internal Access</p>
