@@ -9,14 +9,14 @@ if (isset($_GET['id'])) {
         $livro = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if ($livro) {
-            // 2. Incrementa o contador no banco
-            $update = $pdo->prepare("UPDATE livros SET downloads = downloads + 1 WHERE id = ?");
-            $update->execute([$_GET['id']]);
-
-            // 3. Força o download do arquivo físico
             $caminho_arquivo = "/var/www/biblioteca/" . $livro['nome_arquivo'];
             
             if (file_exists($caminho_arquivo)) {
+                // 2. Incrementa o contador no banco apenas se o arquivo realmente existir
+                $update = $pdo->prepare("UPDATE livros SET downloads = downloads + 1 WHERE id = ?");
+                $update->execute([$_GET['id']]);
+
+                // 3. Força o download do arquivo físico
                 header('Content-Description: File Transfer');
                 header('Content-Type: application/pdf');
                 header('Content-Disposition: attachment; filename="' . basename($caminho_arquivo) . '"');
@@ -25,6 +25,10 @@ if (isset($_GET['id'])) {
                 header('Pragma: public');
                 header('Content-Length: ' . filesize($caminho_arquivo));
                 readfile($caminho_arquivo);
+                exit;
+            } else {
+                // Se o arquivo físico não for encontrado no servidor, alerta e redireciona de volta
+                echo "<script>alert('Erro: O arquivo PDF deste livro não foi encontrado no servidor.'); window.location.href='index.php';</script>";
                 exit;
             }
         }

@@ -74,13 +74,22 @@ try {
                                 </span>
                             </td>
                             <td class="px-6 py-4 text-center font-mono text-zinc-400"><?php echo $l['downloads'] ?? 0; ?></td>
-                            <td class="px-6 py-4 text-right">
+                            <td class="px-6 py-4 text-right flex justify-end gap-2">
                                 <button @click="editLivro = <?php echo htmlspecialchars(json_encode($l)); ?>; modoEdicao = true; modal = true"
                                     class="p-2.5 bg-zinc-800 hover:bg-orange-600 rounded-xl text-white transition-all shadow-lg group-hover:scale-105 border border-zinc-700">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                                     </svg>
                                 </button>
+                                <form action="atualizar_livro.php" method="POST" onsubmit="return confirm('Tem certeza que deseja excluir esta obra permanentemente do acervo e deletar seus arquivos físico e de capa?');" class="inline">
+                                    <input type="hidden" name="id" value="<?php echo $l['id']; ?>">
+                                    <input type="hidden" name="acao" value="deletar">
+                                    <button type="submit" class="p-2.5 bg-zinc-800 hover:bg-red-600 rounded-xl text-white transition-all shadow-lg group-hover:scale-105 border border-zinc-700">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
+                                    </button>
+                                </form>
                             </td>
                         </tr>
                     <?php endforeach; ?>
@@ -110,9 +119,29 @@ try {
                     </div>
 
                     <div x-show="!modoEdicao">
-                        <label class="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-1 text-zinc-500">Nome do Arquivo Físico (Ex: tcc.pdf)</label>
-                        <input type="text" name="nome_arquivo" :value="editLivro.nome_arquivo" :required="!modoEdicao"
+                        <label class="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-1 text-zinc-500">Nome do Arquivo Físico (Opcional - Ex: tcc.pdf)</label>
+                        <input type="text" name="nome_arquivo" :value="editLivro.nome_arquivo"
                             class="w-full bg-zinc-950 border border-zinc-800 rounded-2xl px-4 py-3.5 mt-1.5 focus:border-orange-500 outline-none text-sm text-zinc-400 font-mono">
+                    </div>
+
+                    <div class="bg-zinc-950/50 p-5 rounded-3xl border border-zinc-800/50 border-dashed space-y-4">
+                        <div class="flex items-center justify-between">
+                            <label class="text-[10px] font-black text-orange-500 uppercase tracking-widest ml-1">Arquivo da Obra (PDF)</label>
+                        </div>
+
+                        <input type="file" name="pdf_arquivo" accept="application/pdf" :required="!modoEdicao"
+                            class="text-[10px] text-zinc-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-[9px] file:font-black file:bg-zinc-800 file:text-white hover:file:bg-orange-600 cursor-pointer w-full transition-all">
+
+                        <div x-show="modoEdicao" class="relative group">
+                            <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+                                <svg class="w-3.5 h-3.5 text-zinc-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                </svg>
+                            </div>
+                            <input type="text" :value="editLivro.nome_arquivo" readonly
+                                class="w-full bg-zinc-900/30 border border-zinc-800 rounded-xl pl-9 pr-4 py-2.5 text-[9px] font-mono text-zinc-600 cursor-not-allowed select-all"
+                                placeholder="Nenhum arquivo atual...">
+                        </div>
                     </div>
 
                     <div class="bg-zinc-950/50 p-5 rounded-3xl border border-zinc-800/50 border-dashed space-y-4">
